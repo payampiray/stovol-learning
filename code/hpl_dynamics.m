@@ -1,4 +1,4 @@
-function stats = hpl_dynamics(experiment, nr, nc, subplots, fig_no)
+function [stats, h] = hpl_dynamics(experiment, nr, nc, subplots, fig_no)
 
 if nargin<1, experiment = 1; end
 if nargin<5, fig_no = 1; end

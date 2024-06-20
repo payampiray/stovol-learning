@@ -1,7 +1,7 @@
 function st1 = model_neutral_1st_block(experiment)
 if nargin<1, experiment = 1; end
 
-[data, ~, ~, ~, randomized] = get_data(experiment);
+[data, ~, ~, randomized] = get_data(experiment);
 
 ur = unique(randomized(:,1), 'rows');
 x = zeros(length(data), size(ur, 1));

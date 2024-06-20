@@ -5,22 +5,24 @@ fname = fullfile('..',sprintf('experiment%d', experiment), 'model_hgf.mat');
 data = get_data(experiment);
 
 if ~exist(fname, 'file')
-    num_params = 3;
     N = length(data);
-    lme = nan(N, 1);
-    parameters = nan(N, num_params);
-    dynamics = cell(N, 1);
+    lb = [0 0 1];
+    ub = [4 .5 100];
+    config = struct('bound', [lb; ub]);
+    loglik = nan(N, 1);
+    lme = nan(N, 1);    
+    dynamics = cell(N, 1);    
     for n=1:N        
-        fit(n) = fit_hgf(data{n}); %#ok<AGROW> 
-        lme(n) = fit(n).lme;
-        [~, dynamics{n}] = model_hgf(fit(n).parameter, data{n}.bag, data{n}.bucket);
-        parameters(n, :) = fit(n).parameter;
+        [parameters(n, :), loglik(n), lme(n)] = tools_fit(data{n}, @model_hgf, config);
+        [~, dynamics{n}] = model_hgf(parameters(n, :), data{n}.bag, data{n}.bucket);
         fprintf('%03d\n', n);
     end
         
-    save(fname, 'fit', 'lme', 'parameters', 'dynamics');    
+    save(fname, 'parameters', 'loglik', 'lme', 'dynamics');    
 end
 f = load(fname);
+
+
 parameters = f.parameters;
 parameters(:, 2) = log(parameters(:, 2));
 x = prctile(parameters, [25 50 75])';
@@ -31,66 +33,6 @@ tbl.columns = {'25%', '50%', '75%'};
 end
 
 % -------------------------------------------------------------------------
-function [fit] = fit_hgf(dat)
-
-config = struct('init_range', 1, 'num_init', 10);
-
-action = dat.bucket;
-outcome = dat.bag;
-
-
-options = optimoptions('fmincon','Display','off');
-
-x0 = [2 .25 50]';
-b = zeros(3,1);
-A = eye(3);
-
-lb = [0 0 1]';
-ub = [4 .5 100]';
-num_init = config.num_init;
-
-l0 = lb + (ub - lb).*rand(3, config.num_init-1);
-x0 = [x0 l0];
-
-fun = @(f)model_hgf(f, outcome, action);
-
-x = cell(1, num_init);
-neg_loglik_vec = nan(1, num_init);
-flag = cell(1, num_init);
-g = cell(1, num_init);
-H = cell(1, num_init);
-
-for i=1:num_init
-    [x{i}, neg_loglik_vec(i), flag{i}, ~,~,g{i}, H{i}] = fmincon(fun, x0(:, i), -A, b,[],[], lb, ub,[],options);
-end
-
-[~, i] = min(neg_loglik_vec);
-neg_loglik = neg_loglik_vec(i);
-x = x{i};
-flag = flag{i};
-g = g{i};
-H = H{i};
-
-[~,is_H_pos] = chol(H);
-is_H_pos = ~logical(is_H_pos);
-if ~is_H_pos
-    x = x0(:, 1);
-    neg_loglik = fun(x);
-%     H = prior.precision;    
-end
-
-loglik = -neg_loglik;
-
-num_params = length(x0);
-Ainvdiag = diag(H);
-lme = loglik -.5*num_params*log(200);
-
-config = struct('lb', lb, 'ub', ub, 'num_init', num_init, 'x0', x0);
-optim = struct('flag', flag, 'gradient', g, 'hessian', H, 'is_H_pos', is_H_pos, 'neg_loglik_vec', neg_loglik_vec, 'options', options);
-parameter = x';
-
-fit = struct('lme', lme, 'parameter', parameter, 'loglik', loglik, 'Ainvdiag', {{Ainvdiag}}, 'config', config, 'optim', optim);
-end
 
 function [objective, signals] = model_hgf(f, y, action)
 nu = f(1);

@@ -16,13 +16,24 @@ end
 
 for i=1:size(fx,2)
     groups = {fx(:,i)>0, (fx(:,i)<=0)};
-    [q(i),~, wilxoc(i)] = ranksum2(err_performance(groups{2}, :), err_performance(groups{1}, :));
+    [q(i),~, wilxoc(i)] = ranksum(err_performance(groups{2}, :), err_performance(groups{1}, :));
     wilcox_zval(i) = wilxoc(i).zval;
-    med_err(i) = median(err_performance(groups{2}, :)) - median(err_performance(groups{1}, :));   
+    med_err(i) = median(err_performance(groups{2}, :)) - median(err_performance(groups{1}, :));       
+end
+
+adpative = (fx(:,1)>0) & (fx(:, 2)>0);
+groups = {adpative, fx(:, 1)<0, fx(:, 2)<0};
+for i=1:3
+    tbl_data(:, i) = prctile(err_performance(groups{i}), [25 50 75]);   
 end
 
 stats.p = q;
 stats.zval = wilcox_zval;
 stats.labels = {'Stochasticity maladaptive','Volatility maladaptive', 'any maladaptive'};
 stats.median = med_err;
+
+
+stats.table.rows = {'25%'; '50%'; '75%'};
+stats.table.columns = {'Adaptive', 'Stochasticity maladaptive','Volatility maladaptive'};
+stats.table.data = tbl_data;
 end

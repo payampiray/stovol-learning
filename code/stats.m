@@ -52,6 +52,14 @@ st_clustering = get_stats(@hpl_clustering, experiment, over_write);
 write_it('Model clustering analysis', st_clustering.a_model, 1:2);
 write_it('Data clustering analysis', st_clustering.a_data, 1:2);
 
+st_assignment = get_stats(@hpl_assignment, experiment, over_write);
+write_it('Model |LR| against |AC|', st_assignment.model, 1:2);
+write_it('Model |DeltaV/DeltaS| against |AC|', st_assignment.b2v, 1:2);
+write_it('Data |LR| against |AC|', st_assignment.data, 1:2);
+
+st_rt = get_stats(@model_neutral_response_time, experiment, over_write);
+write_it('RT against |AC|', st_rt.data, 1:2);
+
 st_modulation = get_stats(@hpl_modulation, experiment, over_write);
 write_it('Model modulation analysis', st_modulation.model, 5:6);
 write_it('Data modulation analysis', st_modulation.data, 5:6);

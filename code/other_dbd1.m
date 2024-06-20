@@ -6,22 +6,23 @@ data = get_data(experiment);
 
 if ~exist(fname, 'file')
     N = length(data);
-    lme = nan(N, 1);
+    config = struct('bound', [0; 1]);
     parameters = nan(N, 1);
-    dynamics = cell(N, 1);
+    loglik = nan(N, 1);
+    lme = nan(N, 1);    
+    dynamics = cell(N, 1);    
     for n=1:N        
-        fit(n) = fit_model(data{n}); %#ok<AGROW> 
-        lme(n) = fit(n).lme;
-        parameters(n, :) = fit(n).parameters;
-        [~, dynamics{n}] = model_dbd(fit(n).parameters', data{n}.bag, data{n}.bucket);
+        [parameters(n, :), loglik(n), lme(n)] = tools_fit(data{n}, @model_dbd, config);
+        [~, dynamics{n}] = model_dbd(parameters(n, :), data{n}.bag, data{n}.bucket);
         fprintf('%03d\n', n);
     end
         
-    save(fname, 'fit', 'lme', 'parameters', 'dynamics');    
+    save(fname, 'parameters', 'loglik', 'lme', 'dynamics');      
 end
 f = load(fname);
+
 parameters = f.parameters;
-x = prctile(log(parameters), [25 50 75]);
+x = prctile((parameters), [25 50 75]);
 tbl.data = x;
 tbl.rows = {'theta'};
 tbl.columns = {'25%', '50%', '75%'};
@@ -29,61 +30,6 @@ tbl.columns = {'25%', '50%', '75%'};
 end
 
 % -------------------------------------------------------------------------
-function [fit] = fit_model(dat)
-num_init = 10;
-init_range = 1;
-
-action = dat.bucket;
-outcome = dat.bag;
-
-
-options = optimoptions('fmincon','Display','off');
-
-x0 = .5;
-b = 0;
-A = 1;
-
-lb = 0;
-ub = 1;
-l0 = rand(1, num_init-1)*init_range;
-x0 = [x0 l0];
-
-fun = @(f)model_dbd(f, outcome, action);
-
-x = cell(1, num_init);
-neg_loglik_vec = nan(1, num_init);
-flag = cell(1, num_init);
-g = cell(1, num_init);
-H = cell(1, num_init);
-
-for i=1:num_init
-    [x{i}, neg_loglik_vec(i), flag{i}, ~,~,g{i}, H{i}] = fmincon(fun, x0(:, i), -A, b,[],[], lb, ub,[],options);
-end
-
-[~, i] = min(neg_loglik_vec);
-neg_loglik = neg_loglik_vec(i);
-x = x{i};
-g = g{i};
-H = H{i};
-
-[~,is_H_pos] = chol(H);
-is_H_pos = ~logical(is_H_pos);
-if ~is_H_pos
-    x = x0(:, 1);
-    neg_loglik = fun(x);
-%     H = prior.precision;    
-end
-
-loglik = -neg_loglik;
-
-num_params = length(x0);
-Ainvdiag = diag(H);
-lme = loglik -.5*num_params*log(200);
-
-fit = struct('lme', lme, 'parameters', x', 'loglik', loglik, 'Ainvdiag', {{Ainvdiag}});
-end
-
-
 function [objective, dynamics] = model_dbd(x, outcome, action)
 theta = x';
 

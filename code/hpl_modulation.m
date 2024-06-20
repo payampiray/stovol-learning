@@ -1,7 +1,7 @@
-function stats = hpl_modulation(experiment, nr, nc, subplots, fig_no)
+function [stats] = hpl_modulation(experiment, nr, nc, subplots, fig_no)
 % make_signal
 if nargin<1, experiment = 1; end
-if nargin<5, fig_no = 1; end
+if nargin<5, fig_no = 2; end
 
 data = get_data(experiment);
 
@@ -35,19 +35,6 @@ for i=1:length(x)
     se(i, :) = tstat(i).sd;
     zval(i, :) = wilcox(i).zval;
 end
-
-% lr = glm1(data_set);
-% fx = lr*[-1 -1 1 1;-1 1 -1 1]';
-% fx = fx.*[-1 1];
-% fx(:, 3) = 2*(sum(fx, 2)>0)-1;
-% dlr = x{2};
-% for i=1:3
-%     mdlr_eff(i, :) = mean(dlr(fx(:, i)>0, :));
-%     [~, s(i,:)] = ttest2(dlr(fx(:,i)>0, :), dlr(fx(:,i)<0, :));
-%     [sx(i,:)] = ranksum2(dlr(fx(:,i)>0, :), dlr(fx(:,i)<0, :));
-%     md(i,:) = mean(dlr(fx(:,i)<0, :)) - mean(dlr(fx(:,i)>0, :));
-%     xd(i,:) = median(dlr(fx(:,i)<0, :)) - median(dlr(fx(:,i)>0, :));
-% end
 
 y_labels = {'model', 'data'};
 i = 1;
@@ -83,7 +70,6 @@ mx = mdb(:, 5:6);
 ex = sdb(:, 5:6);
 bs = b_data(:, 5);
 bv = b_data(:, 6);
-
 
 if nargin< 2
     close all;

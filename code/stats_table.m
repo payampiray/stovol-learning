@@ -16,6 +16,11 @@ st = model_neutral_1st_block;
 copy_table(st.table.data, 2);
 array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
 
+
+st = get_stats(@model_neutral_performance, experiment, over_write);
+copy_table(st.table.data, 2);
+array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+
 st = get_stats(@kf_maladaptivity, experiment, over_write);
 copy_table(st.table.data, 2);
 array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
@@ -50,15 +55,16 @@ st = get_stats(@model_neutral, experiment, over_write);
 copy_table(st.table.data, 2);
 array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
 
+
+st = get_stats(@model_neutral_performance, experiment, over_write);
+copy_table(st.table.data, 2);
+array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+
 st = get_stats(@kf_maladaptivity, experiment, over_write);
 copy_table(st.table.data, 2);
 array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
 
-st = get_stats(@hpl_parameters, experiment, 1);
-copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
-
-st = get_stats(@hpl_modulation, experiment, 1);
+st = get_stats(@hpl_parameters, experiment, over_write);
 copy_table(st.table.data, 3);
 array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
 

@@ -1,17 +1,30 @@
 function figsupp2
 
-h = other_signals(1);
+experiment = 1;
 
-% --------
-fn = def('fn');
-fsA = def('fsA')+2;
-xsA = -.2;def('xsA');
-ysA = 1.1;
+close all;
 
-abc = 'abcdefghijkl';
 
-for i= 1:length(h)
-    text(xsA,ysA,abc(i),'fontsize',fsA,'Unit','normalized','fontname',fn,'parent',h(i),'fontweight','bold');
+nr = 2;
+nc = 3;
+subplots = [1 2];
+fsiz = [0 0 .7 .55];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
+[~, h1] = hpl_dynamics(experiment, nr, nc, subplots);
+
+% nr = 1;
+% nc = 3;
+subplots = 3:6;
+% fsiz = [0 0 .7 .27];
+% figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
+
+[~, h2] = hpl_modulation(experiment, nr, nc, subplots);
+
+h = gcf;
+
+for i = 1:length(h)
+    figname = fullfile('..','figs', sprintf('%s_%d', mfilename, i));
+    saveas(h(i), figname, 'jpg');
 end
 
 end

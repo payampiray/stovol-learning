@@ -4,7 +4,7 @@ data_set = 1;
 
 nr = 3;
 nc = 2;
-fsiz = [0 0 .4 1];  
+fsiz = [0 0 .4 1];
 subplots = 1:6;  
 
 close all

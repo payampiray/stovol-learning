@@ -2,9 +2,9 @@ function [fx, labels, kalman_parameter] = kf_fit(experiment)
 if nargin<1, experiment = 1; end
 
 fname = fullfile('..',sprintf('experiment%d', experiment),'model_kf4.mat');
+data = get_data(experiment);    
 
-if ~exist(fname, 'file')
-    data = get_data(experiment);    
+if ~exist(fname, 'file')    
     num_params = 4;
     N = length(data);
     lme = nan(N, 1);
@@ -24,6 +24,7 @@ if ~exist(fname, 'file')
 end
 
 f = load(fname);
+
 fx = f.effect;
 fx = fx(:, [2:4 1]);
 labels = {'lambda_s', 'lambda_v', 'lambda_i', 'lambda_m'};
@@ -39,44 +40,20 @@ outcome = dat.bag;
 
 options = optimoptions('fmincon','Display','off');
 
-if config.num_parameters == 4
-    x0 = [1 0 0 0]';
-    b = zeros(4,1);
-    A = ([0.25 0.25 0.25 0.25;1 1 -1 -1;-1 1 -1 1;1 -1 -1 1])^-1;
-    A_inv = [0.25 0.25 0.25 0.25;1 1 -1 -1;-1 1 -1 1;1 -1 -1 1];
+x0 = [1 0 0 0]';
+b = zeros(4,1);
+A = ([0.25 0.25 0.25 0.25;1 1 -1 -1;-1 1 -1 1;1 -1 -1 1])^-1;
 
-    lb = [0 1 1 1];
-    ub = [1 1 1 1];
-    l0 = rand(4, config.num_init-1)*config.init_range;
-    x0 = [x0 (A^-1)*l0];
+lb = [0 1 1 1];
+ub = [1 1 1 1];
+l0 = rand(4, config.num_init-1)*config.init_range;
+x0 = [x0 (A^-1)*l0];
 
-elseif config.num_parameters == 3
-    x0 = [1 0 0]';
-    b = zeros(4,1);
-    A = ([0.25 0.25 0.25 0.25;1 1 -1 -1;-1 1 -1 1;1 -1 -1 1])^-1;
-    A(:, end) = [];
-    A_inv = [0.25 0.25 0.25 0.25;1 1 -1 -1;-1 1 -1 1];
-
-    lb = [0 1 1];
-    ub = [1 1 1];
-
-elseif config.num_parameters == 1
-    x0 = 1;
-    b = 0;
-    A = 1;
-    A_inv = [0.25 0.25 0.25 0.25];
-
-    lb = 0;
-    ub = 1;    
-end
 
 lb = -config.bound*lb';
 ub = +config.bound*ub';
 init_range = config.init_range;
 num_init = config.num_init;
-
-l0 = rand(4, config.num_init-1)*config.init_range;
-x0 = [x0 A_inv*l0];
 
 fun = @(f)model_kalman(f, A, outcome, action);
 
@@ -108,7 +85,7 @@ end
 
 loglik = -neg_loglik;
 
-num_params = length(x0);
+num_params = config.num_parameters;
 Ainvdiag = diag(H);
 lme = loglik -.5*num_params*log(200);
 

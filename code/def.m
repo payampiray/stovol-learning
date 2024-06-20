@@ -31,6 +31,8 @@ switch action
         col = [0 0 0];
         col(2,:) = [255 85 155]/255;        
         out = col;
+    case 'col_unique'
+        out = [127,205,187]/255;
         
     case 'alf'
         out = .6;
