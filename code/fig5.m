@@ -2,20 +2,20 @@ function fig5
 
 data_set = 1;
 
-nr = 3;
+nr = 1;
 nc = 2;
-fsiz = [0 0 .4 1];
-subplots = 1:6;  
+fsiz = [0 0 .6 .2];
 
 close all
 
 figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
-hpl_clustering(data_set, nr, nc, subplots);
+hpl_clustering(data_set, nr, nc, 1:2, 1);
 h(1) = gcf;
 
-for i = 1:length(h)
-    figname = fullfile('..','figs', sprintf('%s_%d', mfilename, i));
-    saveas(h(i), figname, 'jpg');
-end
+fsiz = [0 0 .6 .5];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
+hpl_clustering(data_set, 2, 2, 1:2, 2);
+h(2) = gcf;
 
 end
+

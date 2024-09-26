@@ -8,8 +8,9 @@ lr_eff = lr*[-1 -1 1 1; -1 1 -1 1;1 -1 -1 1]';
 [fx, labels, kp] = get_kalman(experiment);
 
 for i=1:3 
-    [~,p,~,st]=ttest(fx(:,i));
+    [~,p,ci,st]=ttest(fx(:,i));
     st.p = p;
+    st.ci = ci;
 %     st.bf10 = bf.ttest(fx(:,i));
 %     st.bf01 = 1/st.bf10;
     st.num_negative = mean(fx(:,i)<0);
@@ -18,9 +19,10 @@ for i=1:3
     g_label = {'pos', 'neg'};
     for j=1:2
         g = groups{j};
-        [~,p,~,st]=ttest(lr_eff(g,:));
+        [~,p,ci,st]=ttest(lr_eff(g,:));
         cc =  corr(lr_eff(g,:));
         st.p = p;
+        st.ci = ci;
         st.labels = {'PE x Sto', 'PE x Vol', 'PE x Sto x Vol'};
         stats.(labels{i}).(g_label{j}) = st;
         Effect1 = meanEffectSize(lr_eff(g,1), Effect="robustcohen");
@@ -105,7 +107,7 @@ end
 
 colstrs = {'Small','Large'};
 glbl = {'Small','Large'};
-yl = [0.5 0.82];
+yl = [0.5 0.85];
 fn = def('fn');
 fsy = def('fsy');
 fst = fsy+4;

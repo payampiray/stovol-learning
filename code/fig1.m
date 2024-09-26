@@ -26,9 +26,4 @@ figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
 design(nr, nc, 1, 3);
 h(3) = gcf;
 
-for i = 1:length(h)
-    figname = fullfile('..','figs', sprintf('%s_%d', mfilename, i));
-    saveas(h(i), figname, 'jpg');
-end
-
 end

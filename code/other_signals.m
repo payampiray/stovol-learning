@@ -3,7 +3,7 @@ if nargin<1, experiment = 1; end
 
 data = get_data(experiment);
 
-models = {'model_dbd1', 'model_weber', 'model_hgf'};
+models = {'model_hpl', 'model_dbd1', 'model_weber', 'model_hgf'};
 fsig = fullfile('..',sprintf('experiment%d', experiment),sprintf('%s.mat', mfilename));
 
 if ~exist(fsig, 'file')
@@ -116,10 +116,10 @@ if nargin< 2
 %     fsiz = [0 0 .55 .65];
 %     subplots = 1:4;    
 
-    nr = 2;
-    nc = 4;
-    fsiz = [0 0 .8 .5];  
-    subplots = {1:4, 5:8, 1:4, 5:8};
+    nr = 1;
+    nc = 5;
+    fsiz = [0 0  .9 .25];  
+    subplots = {1:5, 6:10, 1:5, 6:10};
     
     fig(1) = figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
 end
@@ -132,10 +132,10 @@ fsy = def('fsy');
 lgtitle = def('sto');
 
 glbl = {'Small','Large'};
-labels = {'Data', 'Delta-bar-delta', 'Weber-like noisy learning', 'Hierarchical Gaussian filter'};
-yl = {[.5 .8], [.3 1], [.5 1], [.2 .35]};
+labels = {'Data', 'Hierarchical particle filter ', 'Delta-bar-delta', 'Weber-like noisy learning', 'Hierarchical Gaussian filter'};
+yl = {[.5 .8], [.4 .8], [.3 1], [.5 1], [.2 .35]};
 
-h = plot_bar(nr,nc,subplots{1},mx1, sx1, {'Smal','Large'},[{'Learning rate'}, cell(1,3)]);
+h = plot_bar(nr,nc,subplots{1},mx1, sx1, {'Smal','Large'},[{'Learning rate'}, cell(1,K-1)]);
 lg = legend(h(1),glbl,'fontsize',fs,'location','north','box','off');
 title(lg,lgtitle,'fontweight','normal');    
 for i=1:K
@@ -145,17 +145,22 @@ for i=1:K
 end
 hh = h;
 %------------------------------------
+fsiz = [0 0  .9 .2];  
+fig(2) = figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
+
 colmap = def('col_yg');
 bw1 = .05;
 % h = plot_bar(nr,nc,subplots{2}, mx2, sx2, {'Small','Large'},repmat({'Changes in learning rate'},1,K), [], colmap, cell(1,4), bw1); 
-h = plot_bar(nr,nc,subplots{2}, mx2, sx2, {'Negative','Positive'},[{'Changes in learning rate'}, cell(1,3)], [], colmap, cell(1,4), bw1); 
+h = plot_bar(nr,nc,subplots{1}, mx2, sx2, {'Negative','Positive'},[{'Changes in learning rate'}, cell(1,K-1)], [], colmap, cell(1,K), bw1); 
 for i=1:K
     xlabel(h(i),'Sample Autocorrelation', 'fontsize', fs);
 end
 hh = [hh h];
 %------------------------------------
-fsiz = [0 0 .8 .4];
-fig(2) = figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);   
+% fsiz = [0 0 .8 .4];
+fsiz = [0 0  .9 .4];  
+nr = 2;
+fig(3) = figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);   
 
 
 colmap = def('col_unique');
@@ -171,7 +176,7 @@ yls = sprintf('Relationship between\n |LR| changes and |AC|');
 
 % h = plot_bar(nr,nc,subplots{3}, mx3, sx3, [],[{'Changes in |LR|'}, cell(1,3)], [], colmap, cell(1,4), bw1); 
 
-for i= 1:4
+for i= 1:K
     h(i) = subplot(nr, nc, subplots{3}(i));    
     plot_raincloud(mx3{i}, sx3{i}, x_dots(:, i), experiment);
 
@@ -185,7 +190,7 @@ hh = [hh h];
 
 colmap = def('col_yg');
 bw1 = .05;
-h = plot_bar(nr,nc,subplots{4}, mx4, sx4, {'|PE|+|PU|','|PE|-|PU|'},[{'Learning rate modulation'}, cell(1,3)], [], colmap, cell(1,4), bw1); 
+h = plot_bar(nr,nc,subplots{4}, mx4, sx4, {'|PE|+|PU|','|PE|-|PU|'},[{'Learning rate modulation'}, cell(1,K-1)], [], colmap, cell(1,K), bw1); 
 set(h, 'fontsize', fs)
 hh = [hh h];
 

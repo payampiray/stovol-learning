@@ -20,13 +20,13 @@ end
 f = load(fname);
 st = f.glme;
 
-idx = [2 7 8 10 3 4 9 1 5 6];
+idx = [2 7 8 10 3 4 9 1];
 x = [st.Coefficients.Estimate st.Coefficients.SE st.Coefficients.tStat st.Coefficients.pValue]';
 st1.table.data = x(:, idx);
 st1.table.columns = st.CoefficientNames(idx);
 st1.table.rows = {'Coeff', 'SEM','tval','pval'};
 
-for i=1:4
+for i=1:length(st1.table.rows)
     st1.(st1.table.rows{i}) = st1.table.data(i, :);
 end
 st1.labels = st1.table.columns;

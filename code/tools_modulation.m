@@ -38,5 +38,5 @@ contrasts = [-1 -1 1 1; -1 1 -1 1; 1 -1 -1 1;1 1 1 1]'/2;
 block_eff = blocks*contrasts;
 
 [b] = glmfit([delta_eff delta_eff(:,1).*x1 delta_eff(:,1).*x2 delta_eff(:,1).*lr_pre x1 x2 lr_pre block_eff],update_all,'normal', 'constant', 'off');
-b_labels = {'AC','D', 'D x S', 'D x V', 'D x S x V', 'D x (|PE|+|PU|)', 'D x (|PE|-|PU|)', '|PE|+|PU|', '|PE|-|PU|', 'PU/PE', 'S', 'V', 'S x V', 'intercept'};
+b_labels = {'D', 'D x S', 'D x V', 'D x S x V', 'D x (|PE|+|PU|)', 'D x (|PE|-|PU|)', 'D x (PU/PE)', '|PE|+|PU|', '|PE|-|PU|', 'PU/PE', 'S', 'V', 'S x V', 'intercept'};
 end

@@ -3,16 +3,10 @@ function fig6
 experiment = 1;
 close all;
 
-nr = 3;
-nc = 2;
-fsiz = [0 0 .43 1];
-subplots = 1:6;  
+[~, h1] = hpl_assignment(experiment, 2, 1, 1:2);
 
-figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);
-hpl_assignment(experiment, nr, nc, subplots(1:4));
-
-model_neutral_response_time(experiment, nr, nc, subplots(5:6));
-h(1) = gcf;
+[~, h2] = model_neutral_response_time(experiment, 1, 1, 1);
+h = [h1, h2];
 
 for i = 1:length(h)
     figname = fullfile('..','figs', sprintf('%s_%d', mfilename, i));

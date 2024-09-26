@@ -52,7 +52,7 @@ config    = p.Results;
 
 val = nan(size(observations)); 
 for i=1:size(observations,2)
-    [val(:,i), vars_i] = pf_norm_mu_fast(parameters, observations(:,i), config);
+    [val(:,i), vars_i] = pf_process_block(parameters, observations(:,i), config);
     if strcmp(mode, 'fit')        
         vars = [];
     elseif strcmp(mode, 'sim')
@@ -70,7 +70,7 @@ end
 end
 
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-function [val, vars] = pf_norm_mu_fast(parameters, observations, config)
+function [val, vars] = pf_process_block(parameters, observations, config)
 num_particles = config.num_particles;
 
 weights = 1/num_particles*ones(1, num_particles);

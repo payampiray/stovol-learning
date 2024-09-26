@@ -40,6 +40,7 @@ write_it('correlation fluctuations', st_fluctions.all, 1);
 
 
 st_signal = get_stats(@hpl_signal, experiment, over_write);
+write_it('PF: lr estimate', st_signal.lr, 1:2);
 write_it('PF: sto estimate', st_signal.sto, 1:2);
 write_it('PF: vol estimate', st_signal.vol, 1:2);
 
@@ -60,7 +61,7 @@ write_it('Data |LR| against |AC|', st_assignment.data, 1:2);
 st_rt = get_stats(@model_neutral_response_time, experiment, over_write);
 write_it('RT against |AC|', st_rt.data, 1:2);
 
-st_modulation = get_stats(@hpl_modulation, experiment, over_write);
+st_modulation = get_stats(@hpl_modulation, experiment, 1);
 write_it('Model modulation analysis', st_modulation.model, 5:6);
 write_it('Data modulation analysis', st_modulation.data, 5:6);
 
@@ -81,8 +82,8 @@ write_it('model neutral', st_glm, 2:4);
 st_kalman = get_stats(@kf_maladaptivity, experiment, over_write);
 write_it('Kalman: lambda_s', st_kalman.lambda_s.all, 1)
 write_it('Kalman: lambda_v', st_kalman.lambda_v.all, 1)
-write_it('The maladaptive group based on lambda_s', st_kalman.lambda_s.neg, 1)
-write_it('The maladaptive group based on lambda_v', st_kalman.lambda_v.neg, 2)
+write_it('The maladaptive group based on lambda_s', st_kalman.lambda_s.neg, 2)
+write_it('The maladaptive group based on lambda_v', st_kalman.lambda_v.neg, 1)
 
 st_signal = get_stats(@hpl_signal, experiment, over_write);
 write_it('PF: sto estimate', st_signal.sto, 1:2);
@@ -92,7 +93,15 @@ st_clustering = get_stats(@hpl_clustering, experiment, over_write);
 write_it('Model clustering analysis', st_clustering.a_model, 1:2);
 write_it('Data clustering analysis', st_clustering.a_data, 1:2);
 
-st_modulation = get_stats(@hpl_modulation, experiment, over_write);
+st_assignment = get_stats(@hpl_assignment, experiment, 1);
+write_it('Model |LR| against |AC|', st_assignment.model, 1:2);
+write_it('Model |DeltaV/DeltaS| against |AC|', st_assignment.b2v, 1:2);
+write_it('Data |LR| against |AC|', st_assignment.data, 1:2);
+
+st_rt = get_stats(@model_neutral_response_time, experiment, 1);
+write_it('RT against |AC|', st_rt.data, 1:2);
+
+st_modulation = get_stats(@hpl_modulation, experiment, 1);
 write_it('Model modulation analysis', st_modulation.model, 5:6);
 write_it('Data modulation analysis', st_modulation.data, 5:6);
 
@@ -105,9 +114,19 @@ fnames(strcmp(fnames, 'table')) = [];
 
 fprintf('%s\n', st_name);
 for i=1:length(fnames)
-    stats.(fnames{i}) = stats.(fnames{i})(idx);
+    x= stats.(fnames{i});
+    if size(x,1)==1
+        field = fnames{i}; 
+        st.(field) = x(idx);
+    else
+        for j=1:size(x, 1)
+            field = sprintf('%s_%d', fnames{i}, j);
+            st.(field) = x(j, idx);
+        end
+    end
+    
 end
-display(stats);
+display(st);
 fprintf('%s\n\n', repmat('-',1,40));
 end
 

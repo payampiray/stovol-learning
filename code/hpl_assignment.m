@@ -1,4 +1,4 @@
-function stats = hpl_assignment(experiment, nr, nc, subplots, fig_no)
+function [stats, figs] = hpl_assignment(experiment, nr, nc, subplots, fig_no)
 
 if nargin<1, experiment = 1; end
 if nargin<5, fig_no = 1; end
@@ -31,7 +31,7 @@ for i=1:length(b)
     mdb(i, :) = mean(b{i});
     sdb(i, :) = serr(b{i});
     [qdb(i, :),~, wilcox(i)] = signrank2(b{i});
-    [~, pdb(i, :),~, tstat(i)] = ttest(b{i});
+    [~, pdb(i, :), ci{i}, tstat(i)] = ttest(b{i});
     tval(i, :) = tstat(i).tstat;
     se(i, :) = tstat(i).sd;
 end
@@ -48,77 +48,130 @@ y_labels = {'model', 'data', 'b2v'};
 for i=1:3
     st = tstat(i);
     st.p = pdb(i, :);
+    st.ci = ci{i};
     st.mean = mdb(i, :);
     st.sem = sdb(i, :);
     st.columns = {'|AC|', 'AC', 'intercept'};
     stats.(y_labels{i}) = st;
 end
 
-% tbl_data = [mdb(2,:); sdb(2,:); tval(2,:); pdb(2,:)];
-% 
-% stats.table(1).data = tbl_data;
-% stats.table(1).columns = {'|AC|', 'AC', 'intercept'};
-% stats.table(1).rows = {'Estimate'; 'SE'; 't-value'; 'P-value'};
-% 
-% stats.table(2).data = [mx; sx];
-% stats.table(2).columns = {'20%', '40%', '60%', '80%', '100%'};
-% stats.table(2).rows = {'Mean'; 'SE'};
 %--------------------------------------------------------------------------
 mb = mdb(1:3, 1);
 eb = sdb(1:3, 1);
 
-mx = mx(2, :);
-ex = sx(2, :);
 b_dots = [b_model(:, 1), b_data(:, 1), bv2s(:, 1)];
+%--------------------------------------------------------------------------
+if fig_no == 2
+    if nargin< 2
+        close all;
+        nr = 1;
+        nc = 2;
+        fsiz = [0 0 .4 .2];  
+        subplots = [1 2];
+        
+        figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
+    end
+    figs(1) = gcf;
+    
+    fsy = def('fsy');
+    yl = [-19 9]*10^-4;
+    
+    yls{1} = sprintf('Relationship between\n |LR| changes and |AC|');
+    yls{2} = sprintf('Relationship between\n |LR| changes and |AC|');
+    yls{3} = sprintf('Relationship between\nlog %s and |AC|', '\DeltaV/\DeltaS');
+    title_str = {'Model', 'Data', 'Model'};
+    
+    ii = 1:2;
+    
+    for i=ii
+        subplot(nr, nc, subplots(i));    
+        plot_raincloud(mb(i), eb(i), b_dots(:, i), experiment);
+        ylabel(yls{i}, 'fontsize', fsy);
+        title(title_str{i}, 'fontsize', fsy);
+        ylim(yl);
+    
+    end
+    return;
+end
+
+%--------------------------------------------------------------------------
 
 if nargin< 2
     close all;
-    nr = 3;
-    nc = 2;
-    fsiz = [0 0 .4 .9];  
-    subplots = [1 3 2 4];
-    
-    figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
+    nr = 2;
+    nc = 1;
+    subplots = [1, 2];
 end
 
-fsy = def('fs');
+fsy = def('fsy');
+fs = def('fs');
 colmap = def('col_unique');
-bw1 = 0.04;
-yl = [-19 9]*10^-4;
+bw1 = 0.08;
 
 yls{1} = sprintf('Relationship between\n |LR| changes and |AC|');
 yls{2} = sprintf('Relationship between\n |LR| changes and |AC|');
 yls{3} = sprintf('Relationship between\nlog %s and |AC|', '\DeltaV/\DeltaS');
 title_str = {'Model', 'Data', 'Model'};
 
-ii = 1:3;
-if fig_no == 0.5, ii = 1:2; end
+xl = 'Relationship between |LR| changes and |AC|';
 
+ii = 1:2;
 
+fsiz = [0 0 .16 .5];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);     
+for i=1:2
+%     plot_bar(nr, nc, subplots(1), {mx(i,:)}, {eb(i,:)}, {''});
+    plot_bar(nr, nc, subplots(i), {mb(i)}, {eb(i)}, {''}, yls(1), [], colmap, {''}, bw1);
+    title(title_str{i}, 'fontsize', fsy);        
+end    
+figs(1) = gcf;
+
+fsiz = [0 0 .3 .5];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);  
 for i=ii
     subplot(nr, nc, subplots(i));    
-    plot_raincloud(mb(i), eb(i), b_dots(:, i), experiment);
-    ylabel(yls{i}, 'Interpreter','tex');
-    title(title_str{i});
-    
-    if i~=3
-        ylim(yl);
-    end
-end
+%     plot_raincloud(mb(i), eb(i), b_dots(:, i), experiment);
 
-if fig_no == 0.5
-    return;
-end
+    config.add_dots = 1;
+    config.is_right = 1;
+    config.dens_ratio = 2.5;
+    config.face_color = colmap;
+    config.patch_alpha = .4;
+    config.func_summary = 'median';
+    y_points = [0.5 3.5];
+    raincloud1xN_horizontal(b_dots(:, i), y_points, config)    
+    set(gca, 'fontsize', fs, 'ytick', []);
 
+    xlabel(xl, 'fontsize', fsy);
+    title(title_str{i}, 'fontsize', fsy);    
+%     ylim(yl);
+
+end
+figs(2) = gcf;
+
+fsiz = [0 0 .2 .5];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);  
+
+yls = {[0 0.2],[.2 .6]};
 cols = repmat(colmap(1, :), 10, 1);
-% xstr = {'10%', '20', '30', '40', '50', '60', '70', '80', '90', '100'};
-xstr = {'10%', '', '30%', '', '50%', '', '70%', '', '90%', ''};
-xstr = {'20%', '40%', '60%', '80%', '100%'};
+
+wbin = 100/length(mx);
+xperc = wbin:wbin:(100);
 y_str = 'Changes in |LR|';
-plot_bar(nr, nc, subplots(4), {mx}, {ex}, '', {y_str}, [], cols, {''}, bw1, 1);
-set(gca, 'XTickLabel', xstr, 'fontsize', fsy);
-xlabel('|AC| (binned)');
-ylim([.2 .55]);
-title('Data');
+% plot_bar(nr, nc, subplots(4), {mx}, {ex}, '', {y_str}, [], cols, {''}, bw1, 1);
+
+for i=ii
+    subplot(nr, nc, subplots(i));
+    shadedErrorBar(xperc, mx(i, :), sx(i, :), 'lineProps', {'','color',cols(1,:), 'markerfacecolor', [0 0 0]}); hold on;
+    plot(xperc, mx(i, :), '.','markerfacecolor', [0 0 0], 'markersize', 10); hold on;
+
+
+    set(gca, 'fontsize', fs);
+    ylabel(y_str, 'fontsize', fsy);
+    xlabel('|AC|% (binned)', 'fontsize', fsy);
+    ylim(yls{i});
+    title(title_str{i}, 'fontsize', fsy);    
+end
+figs(3) = gcf;
 
 end

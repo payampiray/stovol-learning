@@ -4,69 +4,83 @@ clc;
 over_write = 0;
 experiment = 1;
 
-st =  get_stats(@get_demo, experiment, over_write);
+i = 1;
+
+st =  get_demo();
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@model_neutral, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = model_neutral_1st_block;
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
-
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+disp(T);
 
 st = get_stats(@model_neutral_performance, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@kf_maladaptivity, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@hpl_parameters, experiment, over_write);
 copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
-st = get_stats(@hpl_fluctuations, experiment, over_write);
+st = get_stats(@other_bmc, experiment, over_write);
 copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@other_parameters, experiment, over_write);
 copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
-
-st = get_stats(@other_bmc, experiment, 1);
-copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@hpl_modulation, experiment, over_write);
 copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
+
+st = get_stats(@hpl_fluctuations, experiment, over_write);
+copy_table(st.table.data, 3);
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 % % % ---------------------------------------------------------------------
 
 
 experiment = 2;
-
+over_write = 0;
 
 st = get_stats(@model_neutral, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
-
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@model_neutral_performance, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@kf_maladaptivity, experiment, over_write);
 copy_table(st.table.data, 2);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 st = get_stats(@hpl_parameters, experiment, over_write);
 copy_table(st.table.data, 3);
-array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows)
+T = array2table(st.table.data, 'VariableNames', st.table.columns, 'RowNames', st.table.rows);
+fprintf('\nSupplementary Table %d\n', i); i = i+1; disp(T);
 
 end
 

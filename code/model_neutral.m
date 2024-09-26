@@ -20,7 +20,8 @@ eff_simple = b(:, 5:end)*[-1 -1 1 1; -1 1 -1 1; 1 -1 -1 1; 1 1 1 1]'/2;
 eff = [eff_lr, eff_simple];
 mean_eff = mean(eff);
 serr_eff = serr(eff);
-[~, p_eff, ~, st] = ttest(eff);
+% ci_eff = confidence_interval(eff);
+[~, p_eff, ci_eff, st] = ttest(eff);
 % for i=1:size(eff, 2)
 %     bf10(i) = bf.ttest(eff(:, i));
 % end
@@ -32,11 +33,13 @@ st.table.data = tbl_data;
 
 
 st.p = p_eff;
+st.ci = ci_eff;
 st.labels = {'PE','PE x Sto', 'PE x Vol', 'PE x Sto x Vol', 'Sto', 'Vol', 'Sto x Vol', 'Intercept'};
 st.mean = mean_eff;
 st.percent_neg = round(100*mean(eff<0));
 % st.bf_null = 1./bf10;
 
+% [R,P,RL,RU] = corrcoef(eff_lr(:, 2:3));
 [cr, cp] = corr(eff_lr(:, 2:3));
 st.corr_stovol_r = cr(:)';
 st.corr_stovol_p = cp(:)';

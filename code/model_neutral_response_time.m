@@ -1,9 +1,10 @@
-function stats = model_neutral_response_time(experiment, nr, nc, subplots)
+function [stats, figs] = model_neutral_response_time(experiment, nr, nc, subplots, fig_no)
 if nargin<1, experiment = 1; end
+if nargin<5, fig_no = 1; end
 [data] = get_data(experiment);
 
 b_data = nan(length(data), 3);
-x_data = nan(length(data), 5);
+% x_data = nan(length(data), 10);
 for n=1:length(data)
     dat = data{n};                
     [b_data(n, :), x_data(n, :)] = regression_response_time(dat.bucket, dat.bag, dat.response_time);
@@ -11,7 +12,7 @@ end
 
 mb = mean(b_data);
 sb = serr(b_data);
-[~, pb, ~, tstat] = ttest(b_data);
+[~, pb, ci, tstat] = ttest(b_data);
 tb = tstat.tstat;
 
 mx = mean(x_data);
@@ -19,6 +20,7 @@ sx = serr(x_data);
 
 st = tstat;
 st.p = pb;
+st.ci = ci;
 st.mean = mb;
 st.sem = sb;
 st.columns = {'|AC|', 'AC', 'intercept'};
@@ -39,40 +41,99 @@ eb = sb(1);
 
 b_dots = b_data(:, 1);
 
+
+% -------------------------------------------------------------------------
+fsy= def('fsy');
+fs = def('fs');
+yls = sprintf('Relationship between\n response time and |AC|');
+xl = 'Relationship between response time and |AC|';
+yl = [-1.1 1.1]*10^-4;
+colmap = def('col_unique');
+
+if fig_no == 2
+    if nargin< 2
+        close all;
+        nr = 1;
+        nc = 1;
+        fsiz = [0 0 .2 .3];  
+        subplots = 1;    
+        
+        figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
+    end
+    figs(1) = gcf;
+
+    
+    yl_rt = [475 485]/1000;
+    yticklabel = {'0.475', '0.480', '0.485'};
+    
+    
+    subplot(nr, nc, subplots(1));
+    plot_raincloud(mb(1), eb(1), b_dots(:, 1), experiment);
+    title('Response Time', 'fontsize', fsy);
+    ylabel(yls, 'fontsize', fsy);
+    ylim(yl);
+    
+    return;
+end
+% -------------------------------------------------------------------------
 if nargin< 2
     close all;
     nr = 1;
-    nc = 2;
-    fsiz = [0 0 .4 .3];  
-    subplots = 1:6;    
-    
-    figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);    
+    nc = 1;
+    subplots = [1, 2];
 end
 
-colmap = def('col_unique');
-bw1 = 0.04;
-fs = def('fs');
+bw1 = 0.08;
 
-yl = [-1.1 1.1]*10^-4;
-yl_rt = [475 485]/1000;
-yticklabel = {'0.475', '0.480', '0.485'};
-yls = sprintf('Relationship between\n response time and |AC|');
+i = 1;
+title_str = {'Response time'};
 
-subplot(nr, nc, subplots(1));
-plot_raincloud(mb(1), eb(1), b_dots(:, 1), experiment);
-title('Response Time Data');
-ylabel(yls);
-ylim(yl)
+fsiz = [0 0 .16 .22];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);     
+plot_bar(nr, nc, subplots(i), {mb(i)}, {eb(i)}, {''}, {yls}, [], colmap, {''}, bw1);
+% title('Response Time', 'fontsize', fsy);        
+title(title_str{i}, 'fontsize', fsy); 
+figs(1) = gcf;
 
-cols = repmat(colmap(1, :), 10, 1);
-xstr = {'20%', '40%', '60%', '80%', '100%'};
+fsiz = [0 0 .3 .22];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);  
+subplot(nr, nc, subplots(i));    
+
+config.add_dots = 1;
+config.is_right = 1;
+config.dens_ratio = 2.5;
+config.face_color = colmap;
+config.patch_alpha = .4;
+config.func_summary = 'median';
+y_points = [0.5 3.5];
+raincloud1xN_horizontal(b_dots(:, i), y_points, config)    
+set(gca, 'fontsize', fs, 'ytick', []);
+
+xlabel(xl, 'fontsize', fsy);
+title(title_str{i}, 'fontsize', fsy);    
+figs(2) = gcf;
+
+
+fsiz = [0 0 .2 .22];
+figure; set(gcf,'units','normalized'); set(gcf,'position',fsiz);  
+wbin = 100/length(mx);
+xperc = wbin:wbin:(100);
 y_str = 'Response time (s)';
-plot_bar(nr, nc, subplots(2), {mx}, {sx}, '', {y_str}, [], cols, {''}, bw1, 1);
-set(gca,'XTickLabel', xstr, 'YTickLabel', yticklabel, 'fontsize', fs);
-xlabel('|AC| (binned)');
-title('Response Time Data');
+yl_rt = [476 484]/1000;
 
-ylim(yl_rt)
+subplot(nr, nc, subplots(i));
+shadedErrorBar(xperc, mx(i, :), sx(i, :), 'lineProps', {'','color', colmap, 'markerfacecolor', [0 0 0]}); hold on;
+plot(xperc, mx(i, :), '.','markerfacecolor', [0 0 0], 'markersize', 10); hold on;
+
+
+set(gca, 'fontsize', fs);
+ylabel(y_str, 'fontsize', fsy);
+xlabel('|AC|% (binned)', 'fontsize', fsy);
+ylim(yl_rt);
+title(title_str{i}, 'fontsize', fsy);    
+figs(3) = gcf;
+
+
 end
 
 function [b, x] = regression_response_time(action, outcome, rt)
@@ -101,6 +162,8 @@ b = glmfit([acov_abs acov], rt_all);
 b = [b(2:end); b(1)];
 
 xt = prctile(acov_abs, 20:20:80);
+xt = prctile(acov_abs, 10:10:90);
+% xt = prctile(acov_abs, 5:5:95);
 xt = [0 xt max(acov_abs)];
 y = rt_all;
 for i=2:(length(xt))

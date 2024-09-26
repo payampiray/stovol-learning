@@ -2,7 +2,7 @@ function model_neutral_fluctuations(experiment, nr, nc, subplots)
 if nargin<1, experiment = 1; end
 
 fname = fullfile('..',sprintf('experiment%d', experiment),sprintf('model_neutral_fluctuations.mat'));
-if 1 %~exist(fname, 'file')
+if ~exist(fname, 'file')
     [data] = get_data(experiment);
     [x, e] = tools_fluctuations(data);
     save(fname, 'x', 'e');

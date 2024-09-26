@@ -2,7 +2,6 @@ function st = other_bmc(experiment)
 if nargin<1, experiment = 1; end
 
 models = {'model_rw', 'model_dbd1', 'model_dbd4','model_weber', 'model_hgf', 'model_kfem'};
-models = {'model_rw', 'model_AC'};
 fname = fullfile('..',sprintf('experiment%d', experiment), 'model_hpl.mat');
 f = load(fname);
 lme_pf = f.lme;

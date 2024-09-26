@@ -30,7 +30,7 @@ for i=1:length(x)
     sdb(i, :) = serr(x{i});
     edb(i, :) = se_median(x{i});
     [qdb(i, :),~, wilcox(i)] = signrank2(x{i});
-    [~, pdb(i, :),~, tstat(i)] = ttest(x{i});
+    [~, pdb(i, :),ci{i}, tstat(i)] = ttest(x{i});
     tval(i, :) = tstat(i).tstat;
     se(i, :) = tstat(i).sd;
     zval(i, :) = wilcox(i).zval;
@@ -40,6 +40,8 @@ y_labels = {'model', 'data'};
 i = 1;
 st = wilcox(i);
 st.p = qdb(i, :);
+st.ci = ci{i};
+
 st.median = xdb(i, :);
 st.se_median = edb(i, :);
 st.columns = b_labels;
@@ -47,6 +49,7 @@ stats.(y_labels{i}) = st;
 
 i = 2;
 st = tstat(i);
+st.ci = ci{i};
 st.p = pdb(i, :);
 st.mean = mdb(i, :);
 st.se = sdb(i, :);
